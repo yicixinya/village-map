@@ -1,0 +1,28 @@
+<html>
+<head><meta charset="UTF-8"><title>Worker TTS 测试</title></head>
+<body style="font-family:sans-serif;padding:20px;font-size:16px">
+<h3>腾讯TTS Worker 测试</h3>
+<div id="r" style="padding:15px;background:#f0f0f0;border-radius:8px;white-space:pre-wrap">测试中，请稍等...</div>
+<script>
+fetch("https://village-map.yicixing91.workers.dev", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ text: "你好，欢迎来到柑榄村" })
+}).then(r => r.json()).then(d => {
+  let msg = "audio长度: " + (d.audio ? d.audio.length : 0) + "\nerror: " + (d.error || "无");
+  document.getElementById("r").innerText = msg;
+  if (d.audio && d.audio.length > 0) {
+    msg += "\n\n✅ 正在播放音频（如果能听到声音说明Worker成功）";
+    document.getElementById("r").innerText = msg;
+    const bytes = atob(d.audio);
+    const arr = new Uint8Array(bytes.length);
+    for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+    const blob = new Blob([arr], { type: "audio/mpeg" });
+    new Audio(URL.createObjectURL(blob)).play();
+  }
+}).catch(e => {
+  document.getElementById("r").innerText = "请求失败: " + e.message;
+});
+</script>
+</body>
+</html>
