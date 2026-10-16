@@ -303,29 +303,6 @@ function escapeXml(s) {
 }
 
 async function speak(text) {
-  const workerUrl = "https://village-map.yicixing91.workers.dev";
-  try {
-    const r = await fetch(workerUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: text.substring(0, 150) })
-    });
-    const data = await r.json();
-    if (data.audio) {
-      const bytes = atob(data.audio);
-      const arr = new Uint8Array(bytes.length);
-      for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
-      const blob = new Blob([arr], { type: "audio/mpeg" });
-      stopSpeak();
-      currentAudio = new Audio(URL.createObjectURL(blob));
-      currentAudio.onended = function () { stopSpeak(); };
-      await currentAudio.play();
-      return;
-    }
-    if (data.error) console.warn("Worker TTS error:", data.error);
-  } catch (e) {
-    console.warn("Worker TTS失败，回退浏览器语音：", e.message);
-  }
   speakWithBrowser(text);
 }
 
