@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>乡情数字地图</title>
+
+  <!-- Leaflet 地图库（开源免费，CDN加载） -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- 本地样式与数据 -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="container">
+    <!-- 顶部标题 -->
+    <div class="header">
+      <h1 id="villageName">乡情数字地图</h1>
+      <div class="subtitle" id="villageSubtitle"></div>
+    </div>
+
+    <!-- 地图容器 -->
+    <div id="map"></div>
+  </div>
+
+  <!-- AI 浮动按钮 -->
+  <button class="ai-fab" onclick="toggleAIPanel()" title="智能讲解">💬</button>
+
+  <!-- AI 对话面板 -->
+  <div class="ai-panel" id="aiPanel">
+    <div class="ai-header">
+      <span class="title">🤖 乡情讲解员</span>
+      <button class="close-btn" onclick="toggleAIPanel()">×</button>
+    </div>
+    <div class="ai-messages" id="aiMessages"></div>
+    <div class="quick-questions" id="quickQuestions"></div>
+    <div class="ai-input">
+      <input type="text" id="aiInput" placeholder="问问关于本村的故事..." 
+             onkeydown="if(event.key==='Enter') sendQuestion()">
+      <button id="aiSendBtn" onclick="sendQuestion()">发送</button>
+    </div>
+  </div>
+
+  <!-- 数据文件 -->
+  <script src="config.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
