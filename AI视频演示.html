@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>李懿峰 · 新数字工匠 | 3分钟AI视频分镜</title>
+<style>
+  :root{
+    --bg:#0b1020;
+    --panel:#121a32;
+    --panel-2:#0f1729;
+    --accent:#4ea1ff;
+    --accent-2:#7bd1ff;
+    --warn:#ffb454;
+    --gold:#ffd36e;
+    --text:#e8eefc;
+    --muted:#8b97b3;
+    --line:#1f2b4a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:"PingFang SC","Microsoft YaHei","Segoe UI",system-ui,sans-serif;
+    background:radial-gradient(1200px 800px at 70% -10%, #16224a 0%, transparent 60%),
+               radial-gradient(900px 700px at -10% 110%, #10203a 0%, transparent 55%),
+               var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    overflow-x:hidden;
+  }
+  header{
+    padding:18px 28px;
+    border-bottom:1px solid var(--line);
+    display:flex;align-items:center;justify-content:space-between;
+    background:linear-gradient(180deg, rgba(20,30,60,.6), rgba(11,16,32,0));
+    backdrop-filter:blur(6px);
+  }
+  header .title{font-size:18px;font-weight:700;letter-spacing:.5px}
+  header .title small{color:var(--muted);font-weight:400;margin-left:8px}
+  header .meta{color:var(--muted);font-size:13px}
+  .stage{
+    flex:1;
+    display:grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap:18px;
+    padding:22px 28px;
+    max-width:1400px;
+    width:100%;
+    margin:0 auto;
+  }
+  @media (max-width:900px){
+    .stage{grid-template-columns:1fr; padding:16px}
+  }
+  .screen{
+    position:relative;
+    aspect-ratio:16/9;
+    border-radius:18px;
+    overflow:hidden;
+    border:1px solid var(--line);
+    background:#000;
+    box-shadow:0 20px 60px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.03);
+  }
+  .screen .scene{
+    position:absolute;inset:0;
+    display:flex;flex-direction:column;justify-content:flex-end;
+    padding:26px;
+    opacity:0;
+    transition:opacity .8s ease;
+  }
+  .scene.active{opacity:1}
+  .scene .vis{
+    position:absolute;inset:0;
+    z-index:0;
+  }
+  .scene .vis::after{
+    content:"";
+    position:absolute;inset:0;
+    background:linear-gradient(0deg, rgba(0,0,0,.85) 0%, rgba(0,0,0,.2) 45%, rgba(0,0,0,0) 70%);
+  }
+  .scene .subtitle{
+    position:relative;z-index:2;
+    font-size:clamp(18px,3.2vw,30px);
+    font-weight:700;
+    line-height:1.45;
+    text-shadow:0 2px 18px rgba(0,0,0,.85);
+    color:#fff;
+    max-width:92%;
+  }
+  .scene .badge{
+    position:absolute;top:18px;left:22px;z-index:3;
+    background:rgba(0,0,0,.45);
+    border:1px solid rgba(255,255,255,.18);
+    padding:6px 12px;border-radius:999px;
+    font-size:12px;color:#dfe7ff;letter-spacing:1px;
+  }
+  .scene .timecode{
+    position:absolute;top:18px;right:22px;z-index:3;
+    font-size:12px;color:rgba(255,255,255,.7);
+    font-family:"SFMono-Regular",Consolas,monospace;
+  }
+  /* 各幕背景 */
+  .bg-act1{background:linear-gradient(135deg,#3a4a2a,#1c2410 70%),radial-gradient(circle at 30% 30%, #6b7a3a 0%, transparent 50%)}
+  .bg-act1 .vis{background:
+    radial-gradient(circle at 65% 40%, rgba(180,200,90,.25), transparent 45%),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.02) 0 40px, transparent 40px 80px);}
+  .bg-act2{background:linear-gradient(135deg,#0a1830,#0a2540)}
+  .bg-act2 .vis{background:
+    radial-gradient(circle at 70% 20%, rgba(78,161,255,.35), transparent 55%),
+    linear-gradient(180deg, transparent 0%, rgba(78,161,255,.08) 100%);}
+  .bg-act3{background:linear-gradient(135deg,#103018,#0a1a0d)}
+  .bg-act3 .vis{background:
+    radial-gradient(circle at 50% 60%, rgba(120,220,150,.25), transparent 50%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 30px, transparent 30px 60px);}
+  .bg-act4{background:linear-gradient(135deg,#1a1430,#241030)}
+  .bg-act4 .vis{background:
+    radial-gradient(circle at 50% 30%, rgba(255,211,110,.28), transparent 55%);}
+
+  .narration{
+    position:absolute;left:0;right:0;bottom:0;z-index:4;
+    padding:14px 22px;
+    background:linear-gradient(0deg, rgba(0,0,0,.92), transparent);
+    color:#fff;
+    font-size:clamp(15px,2.2vw,20px);
+    line-height:1.7;
+    min-height:90px;
+    display:flex;align-items:center;
+  }
+  .narration .speaker{color:var(--accent-2);font-weight:700;margin-right:8px}
+
+  /* 右侧信息面板 */
+  .panel{
+    display:flex;flex-direction:column;gap:16px;
+    min-width:0;
+  }
+  .card{
+    background:linear-gradient(180deg,var(--panel),var(--panel-2));
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:18px 20px;
+  }
+  .card h3{
+    font-size:13px;color:var(--muted);
+    text-transform:uppercase;letter-spacing:1.5px;
+    margin-bottom:10px;display:flex;align-items:center;gap:8px;
+  }
+  .card h3 .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+  .card p,.card li{font-size:14px;line-height:1.75;color:#cdd6ee}
+  .act-title{font-size:20px;font-weight:700;margin-bottom:6px;color:#fff}
+  .act-range{color:var(--accent-2);font-size:13px;font-family:"SFMono-Regular",Consolas,monospace}
+  .shot-list{list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:6px}
+  .shot-list li{
+    padding-left:18px;position:relative;
+  }
+  .shot-list li::before{
+    content:"";position:absolute;left:0;top:9px;
+    width:8px;height:8px;border-radius:2px;background:var(--warn);
+  }
+  .timeline{
+    height:8px;border-radius:6px;background:#1a2340;overflow:hidden;
+    position:relative;
+  }
+  .timeline .fill{
+    height:100%;width:0%;
+    background:linear-gradient(90deg,var(--accent),var(--accent-2),var(--gold));
+    transition:width .25s linear;
+  }
+  .acts-bar{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:6px;
+    margin-top:10px;
+  }
+  .acts-bar .seg{
+    height:6px;border-radius:4px;background:#1a2340;overflow:hidden;
+  }
+  .acts-bar .seg.done{background:var(--accent)}
+  .acts-bar .seg.cur{background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+
+  /* 控制条 */
+  .controls{
+    max-width:1400px;width:100%;margin:0 auto;padding:0 28px 26px;
+  }
+  .controls .bar{
+    background:linear-gradient(180deg,var(--panel),var(--panel-2));
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:14px 18px;
+    display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  }
+  .btn{
+    appearance:none;border:1px solid var(--line);
+    background:#16203c;color:#fff;
+    padding:9px 16px;border-radius:10px;font-size:14px;cursor:pointer;
+    transition:.2s;
+    display:inline-flex;align-items:center;gap:7px;
+  }
+  .btn:hover{border-color:var(--accent);color:var(--accent-2)}
+  .btn.primary{background:linear-gradient(135deg,var(--accent),#2b6fd6);border-color:transparent}
+  .btn.primary:hover{filter:brightness(1.1)}
+  .clock{
+    font-family:"SFMono-Regular",Consolas,monospace;
+    font-size:14px;color:var(--muted);min-width:120px;
+  }
+  .clock b{color:#fff}
+  .hint{font-size:12px;color:var(--muted)}
+
+  /* 行动契约字幕框 */
+  .contract{
+    position:absolute;inset:0;z-index:3;
+    display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 50% 40%, rgba(30,20,60,.6), rgba(0,0,0,.85));
+    opacity:0;transition:opacity .6s;
+  }
+  .contract.show{opacity:1}
+  .contract .box{
+    border:2px solid var(--gold);
+    border-radius:16px;
+    padding:24px 30px;
+    max-width:75%;
+    background:rgba(10,10,20,.6);
+    backdrop-filter:blur(4px);
+    text-align:center;
+    color:#fff;
+    line-height:1.9;
+    font-size:clamp(16px,2.4vw,22px);
+    box-shadow:0 0 40px rgba(255,211,110,.25);
+  }
+  .contract .box .name{color:var(--gold);font-weight:800;font-size:1.15em}
+
+  footer{
+    text-align:center;color:var(--muted);font-size:12px;
+    padding:14px;border-top:1px solid var(--line);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title">李懿峰 · 新数字工匠 <small>3分钟 AI 视频分镜演示</small></div>
+  <div class="meta">脚本四幕 · 180s · DeepSeek 破局</div>
+</header>
+
+<main class="stage">
+  <!-- 左：屏幕 -->
+  <div class="screen" id="screen">
+    <!-- 第一幕 -->
+    <div class="scene bg-act1 active" data-act="1">
+      <div class="vis"></div>
+      <span class="badge">第一幕 · 痛点切入</span>
+      <span class="timecode">0:00 – 0:45</span>
+      <div class="subtitle">一个人，根本顾及不了一个班。</div>
+      <div class="narration"><span class="speaker">旁白/李懿峰：</span><span class="text"></span></div>
+    </div>
+    <!-- 第二幕 -->
+    <div class="scene bg-act2" data-act="2">
+      <div class="vis"></div>
+      <span class="badge">第二幕 · AI破局</span>
+      <span class="timecode">0:45 – 1:45</span>
+      <div class="subtitle">让AI当我的"助教"。</div>
+      <div class="narration"><span class="speaker">旁白/李懿峰：</span><span class="text"></span></div>
+    </div>
+    <!-- 第三幕 -->
+    <div class="scene bg-act3" data-act="3">
+      <div class="vis"></div>
+      <span class="badge">第三幕 · 价值升华</span>
+      <span class="timecode">1:45 – 2:30</span>
+      <div class="subtitle">从"巡逻员"到教学设计者。</div>
+      <div class="narration"><span class="speaker">旁白/李懿峰：</span><span class="text"></span></div>
+    </div>
+    <!-- 第四幕 -->
+    <div class="scene bg-act4" data-act="4">
+      <div class="vis"></div>
+      <span class="badge">第四幕 · 行动契约</span>
+      <span class="timecode">2:30 – 3:00</span>
+      <div class="subtitle">成为体育教学领域的新数字工匠。</div>
+      <div class="contract" id="contract">
+        <div class="box">
+          我，<span class="name">李懿峰</span>，<br>
+          作为一名社会体育专业的学生，<br>
+          我将利用 <b>DeepSeek</b>，<br>
+          结合专业中教学体育运动的实操，<br>
+          解决一人无法顾及多人班级的低效痛点。<br>
+          我的目标：不做被替代的旧蓝领，<br>
+          成为体育教学领域的<b>新数字工匠</b>！
+        </div>
+      </div>
+      <div class="narration"><span class="speaker">旁白/李懿峰：</span><span class="text"></span></div>
+    </div>
+  </div>
+
+  <!-- 右：信息面板 -->
+  <aside class="panel">
+    <div class="card">
+      <div class="act-title" id="actTitle">第一幕 · 痛点切入</div>
+      <div class="act-range" id="actRange">0:00 – 0:45 · 共 45 秒</div>
+      <p id="actDesc" style="margin-top:8px">李懿峰站在操场边，手持点名册和哨子，看远处自由活动的学生，眉头微皱、擦汗。制造共鸣，直击"一人难顾全班"的痛点。</p>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>拍摄建议</h3>
+      <ul class="shot-list" id="shotList"></ul>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>进度</h3>
+      <div class="timeline"><div class="fill" id="fill"></div></div>
+      <div class="acts-bar" id="actsBar">
+        <div class="seg cur" data-s="1"></div>
+        <div class="seg" data-s="2"></div>
+        <div class="seg" data-s="3"></div>
+        <div class="seg" data-s="4"></div>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<div class="controls">
+  <div class="bar">
+    <button class="btn primary" id="playBtn">▶ 播放</button>
+    <button class="btn" id="resetBtn">↺ 重置</button>
+    <div class="clock"><b id="curTime">0:00</b> / 3:00</div>
+    <span class="hint">提示：这是分镜播放器，配音台词会逐句以字幕形式在屏幕底部呈现；如需真实视频/配音，请在剪映/Runway 等工具中按此脚本制作。</span>
+  </div>
+</div>
+
+<footer>基于脚本生成 · 仅作分镜与台词节奏预览 · 2026</footer>
+
+<script>
+const ACTS = [
+  {
+    id:1, title:"第一幕 · 痛点切入", range:"0:00 – 0:45", dur:45,
+    desc:"李懿峰站在操场边，手持点名册和哨子，看远处自由活动的学生，眉头微皱、擦汗。制造共鸣，直击\"一人难顾全班\"的痛点。",
+    shots:[
+      "操场边远景，学生自由活动，主角站立前景",
+      "特写：擦汗、紧皱眉头、点名册与哨子",
+      "眼神真诚，语速稍快，体现焦虑感，为反转铺垫"
+    ],
+    lines:[
+      "大家好，我是李懿峰，一名社会体育专业的学生。",
+      "很多人觉得，学体育以后就是当个体育老师，带带课、吹吹哨子，是一份体力活。",
+      "但只有真正下过课堂的人才知道，这个\"旧蓝领\"的标签有多沉重。",
+      "我带过一个40人的初中篮球班。每次教新动作，我一个人站前面示范，后排根本看不清，动作变形了我也没长后眼。",
+      "一节课45分钟，光是整队、纠正动作、维持纪律就耗掉大半精力。",
+      "我最大的痛点是：一个人，根本顾及不了一个班。课后想给每个学生写个性化点评，更是心有余而力不足。"
+    ]
+  },
+  {
+    id:2, title:"第二幕 · AI破局", range:"0:45 – 1:45", dur:60,
+    desc:"切换到书桌前，屏幕上是 DeepSeek 对话框。展示输入条件、生成分组分层教学方案、课堂口令话术、课后个性化反馈的实际操作。",
+    shots:[
+      "书桌前中景，电脑屏幕 DeepSeek 对话框",
+      "录屏/对屏拍：打字输入班级人数、场地、学生基础、天气",
+      "滚动展示生成的方案、口令话术、个性化反馈",
+      "实际操作动作（打字、滚动），让观众看到\"真的在用\""
+    ],
+    lines:[
+      "直到我遇到 DeepSeek，我找到了突围的方向。既然肉眼不够用，那就用AI来当我的\"助教\"。",
+      "上课前，我把班级人数、场地条件、学生基础、甚至天气输入给 DeepSeek，让它帮我生成一份\"分组分层教学方案\"。",
+      "针对基础弱的同学，它建议用\"游戏化练习\"；针对基础好的，它帮我设计了进阶对抗赛规则。",
+      "我还让它生成了一套\"课堂口令与互动话术\"，不用扯着嗓子吼，也能快速调动全场注意力。",
+      "课后，我只要记录几个关键学生的表现，输入给 DeepSeek，它一分钟就生成全班个性化反馈。",
+      "哪个同学手腕发力不对、哪个跑位不积极，都有针对性建议。原本两小时的总结，现在十分钟搞定。"
+    ]
+  },
+  {
+    id:3, title:"第三幕 · 价值升华", range:"1:45 – 2:30", dur:45,
+    desc:"切回操场。李懿峰手持平板站在场地中央，自信指挥；穿插学生按小组自主练习、他在旁针对性指导的画面。阐述\"新数字工匠\"。",
+    shots:[
+      "操场中景：手持平板，站在场地中央指挥",
+      "穿插：学生分组自主练习",
+      "穿插：主角在旁针对性指导个别学生",
+      "语气坚定、充满力量，体现专业自信与职业认同感"
+    ],
+    lines:[
+      "有了 DeepSeek 的辅助，我终于从繁琐的\"盯人\"中解放了出来。",
+      "我不再是一个疲惫的\"巡逻员\"，而是真正变成了教学的设计者和学生的引导者。",
+      "我深刻意识到，AI不会取代体育老师，但会用AI的体育老师，一定会取代不会用的。",
+      "社会体育的出路，绝不是只靠体力硬扛，而是用数字化思维去重构教学场景。",
+      "我们不是被时代抛弃的旧蓝领，我们要做的是懂体育、懂教育、更懂数字工具的新数字工匠。"
+    ]
+  },
+  {
+    id:4, title:"第四幕 · 行动契约", range:"2:30 – 3:00", dur:30,
+    desc:"李懿峰站在镜头正中央，背景干净，直视镜头，眼神明亮。画面中央缓缓浮现字幕框。点题收尾，仪式感。",
+    shots:[
+      "正面近景，干净背景，直视镜头",
+      "字幕框随台词同步弹出（仪式感）",
+      "语速放慢、咬字清晰",
+      "最后一句配合自信微笑或握拳动作"
+    ],
+    lines:[
+      "最后，我写下我的行动契约：",
+      "我，李懿峰，作为一名社会体育专业的学生，",
+      "我将利用 DeepSeek，结合我专业中教学体育运动的具体实操，",
+      "解决一个人无法顾及多人班级的低效痛点。",
+      "我的目标是：不做被替代的旧蓝领，成为体育教学领域的新数字工匠！",
+      "下周一早上，我就会带着AI生成的教案，站在操场上。我是李懿峰，我们一起突围。"
+    ]
+  }
+];
+
+// 每句台词在该幕内均匀分配时间
+function buildSchedule(){
+  let t = 0;
+  const sched = [];
+  ACTS.forEach(a=>{
+    const per = a.dur / a.lines.length;
+    a.lines.forEach((line,i)=>{
+      sched.push({act:a.id, line, start:t, end:t+per, idx:i, total:a.lines.length});
+      t += per;
+    });
+  });
+  return sched;
+}
+const SCHEDULE = buildSchedule();
+const TOTAL = 180;
+
+const screen = document.getElementById('screen');
+const scenes = [...screen.querySelectorAll('.scene')];
+const fill = document.getElementById('fill');
+const actsBar = document.getElementById('actsBar');
+const curTime = document.getElementById('curTime');
+const actTitle = document.getElementById('actTitle');
+const actRange = document.getElementById('actRange');
+const actDesc = document.getElementById('actDesc');
+const shotList = document.getElementById('shotList');
+const contract = document.getElementById('contract');
+const playBtn = document.getElementById('playBtn');
+const resetBtn = document.getElementById('resetBtn');
+
+function fmt(s){ const m=Math.floor(s/60), ss=Math.floor(s%60); return m+":"+String(ss).padStart(2,'0'); }
+
+function setAct(id){
+  scenes.forEach(s=> s.classList.toggle('active', +s.dataset.act===id));
+  const a = ACTS.find(x=>x.id===id);
+  actTitle.textContent = a.title;
+  actRange.textContent = a.range + " · 共 " + a.dur + " 秒";
+  actDesc.textContent = a.desc;
+  shotList.innerHTML = a.shots.map(s=>`<li>${s}</li>`).join('');
+  [...actsBar.children].forEach(seg=>{
+    const sid=+seg.dataset.s;
+    seg.classList.toggle('done', sid<id);
+    seg.classList.toggle('cur', sid===id);
+  });
+  contract.classList.toggle('show', id===4);
+}
+setAct(1);
+
+let raf=null, startTs=null, playing=false, lastLineIdx=-1;
+
+function render(t){
+  const pct = Math.min(100, t/TOTAL*100);
+  fill.style.width = pct+'%';
+  curTime.textContent = fmt(Math.min(t,TOTAL));
+  // 当前幕
+  const act = t<45?1 : t<105?2 : t<150?3 : 4;
+  if(!scenes[act-1].classList.contains('active')) setAct(act);
+  // 当前台词
+  const cur = SCHEDULE.find(s=> t>=s.start && t<s.end) || SCHEDULE[SCHEDULE.length-1];
+  if(cur && cur.idx!==lastLineIdx){
+    lastLineIdx = cur.idx;
+    const scene = scenes[cur.act-1];
+    const txt = scene.querySelector('.narration .text');
+    if(txt){
+      // 打字机效果
+      const full = cur.line;
+      txt.textContent='';
+      let i=0;
+      clearInterval(txt._typer);
+      txt._typer = setInterval(()=>{
+        if(i<full.length){ txt.textContent += full[i]; i++; }
+        else clearInterval(txt._typer);
+      }, 28);
+    }
+  }
+  if(t>=TOTAL){ stop(); curTime.textContent='3:00'; playBtn.textContent='▶ 重播'; return; }
+}
+
+function loop(ts){
+  if(!playing) return;
+  if(startTs===null) startTs=ts;
+  const elapsed = (Date.now()-startTs)/1000;
+  render(elapsed);
+  if(elapsed<TOTAL) raf=requestAnimationFrame(loop);
+  else stop();
+}
+
+function play(){
+  if(playing) return;
+  // 从当前进度继续
+  const cur = parseFloat(fill.style.width||0)/100*TOTAL;
+  startTs = Date.now() - cur*1000;
+  playing=true;
+  playBtn.textContent='⏸ 暂停';
+  raf=requestAnimationFrame(loop);
+}
+function pause(){
+  playing=false;
+  if(raf) cancelAnimationFrame(raf);
+  playBtn.textContent='▶ 继续';
+}
+function stop(){
+  playing=false;
+  if(raf) cancelAnimationFrame(raf);
+}
+function reset(){
+  stop();
+  startTs=null; lastLineIdx=-1;
+  fill.style.width='0%'; curTime.textContent='0:00';
+  scenes.forEach(s=>{ const t=s.querySelector('.narration .text'); if(t)t.textContent=''; });
+  setAct(1);
+  playBtn.textContent='▶ 播放';
+}
+
+playBtn.addEventListener('click', ()=>{
+  const cur = parseFloat(fill.style.width||0)/100*TOTAL;
+  if(cur>=TOTAL){ reset(); setTimeout(play,50); }
+  else if(playing) pause();
+  else play();
+});
+resetBtn.addEventListener('click', reset);
+
+// 点击时间轴跳转
+fill.parentElement.addEventListener('click', e=>{
+  const r = e.currentTarget.getBoundingClientRect();
+  const ratio = (e.clientX-r.left)/r.width;
+  const t = ratio*TOTAL;
+  startTs = Date.now()-t*1000;
+  lastLineIdx=-1;
+  render(t);
+});
+
+// 自动开始（可选）
+// play();
+</script>
+</body>
+</html>
