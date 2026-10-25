@@ -457,7 +457,7 @@ async function callAI(question) {
     body: JSON.stringify({
       model: AI_CONFIG.model,
       messages: messages,
-      temperature: 0.7,
+      temperature: 1,
       max_tokens: 500
     })
   });
