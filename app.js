@@ -439,10 +439,9 @@ async function callAI(question) {
 
   // 构建消息列表（保留最近几轮对话）
   const messages = [
-    { role: "system", content: systemContent }
+    { role: "system", content: systemContent },
+    { role: "user", content: userContent }
   ];
-  aiMessages.forEach(m => messages.push(m));
-  messages.push({ role: "user", content: userContent });
 
   // 记录到历史
   aiMessages.push({ role: "user", content: userContent });
