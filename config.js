@@ -13,7 +13,7 @@ const AI_CONFIG = {
 
   // ----- 使用的模型名称 -----
   // glm-4-flash 完全免费；如想要更强可换 glm-4-plus（按量计费很便宜）
-  model: "moonshot-v1-auto",
+  model: "kimi-k2.6",
 
   // ----- AI 的人设和提示词 -----
   // 系统提示词告诉 AI：你是一个村史讲解员，只能根据村史资料回答
