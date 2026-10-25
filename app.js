@@ -448,7 +448,7 @@ async function callAI(question) {
   aiMessages.push({ role: "user", content: userContent });
 
   // 调用API
-  const response = await fetch("https://corsproxy.io/?url=" + encodeURIComponent(AI_CONFIG.apiUrl), {
+  const response = await fetch(AI_CONFIG.apiUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
