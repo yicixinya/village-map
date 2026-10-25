@@ -5,15 +5,15 @@
 const AI_CONFIG = {
   // ----- 大模型 API 地址 -----
   // 智谱GLM（推荐，免费）官方：https://open.bigmodel.cn
-  apiUrl: "https://api.deepseek.com/chat/completions",
+  apiUrl: "https://api.moonshot.cn/v1/chat/completions",
 
   // ----- 你的 API Key -----
   // ★ 拿Key方法见下方说明，拿到后替换"在这里粘贴你的Key"这几个字★
-  apiKey: "sk-59c3dc44371c47eabc15be27f42a4545",
+  apiKey: "sk-LM3tw6f6MYYNtmJVEVUO69Spd3FE41LDnUtIYlRrRHahhYjS",
 
   // ----- 使用的模型名称 -----
   // glm-4-flash 完全免费；如想要更强可换 glm-4-plus（按量计费很便宜）
-  model: "deepseek-chat",
+  model: "moonshot-v1-auto",
 
   // ----- AI 的人设和提示词 -----
   // 系统提示词告诉 AI：你是一个村史讲解员，只能根据村史资料回答
